@@ -18,5 +18,8 @@
   "homepage": "https://github.com/gaetanmaisse/stackblitz-storybook#readme",
   "dependencies": {
     "zx": "^2.0.0"
+  },
+  "devDependencies": {
+    "prettier": "2.3.2"
   }
 }
