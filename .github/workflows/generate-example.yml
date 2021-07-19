@@ -1,0 +1,22 @@
+name: Update examples
+
+on:
+  schedule:
+    - cron: '7 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup git user
+        run: |
+          git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
+          git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
+      - name: Install dependencies
+        run: yarn install
+      - name: Generate examples
+        run: yarn start
+      - name: Push examples
+        run: git push
