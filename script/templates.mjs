@@ -1,6 +1,6 @@
 export const templates = [
   "cra",
-  // "cra_typescript",
+  "cra_typescript",
   //  "react",
   //  "react_typescript",
   //  "webpack_react",
@@ -13,8 +13,8 @@ export const templates = [
   "web_components_lit2",
   //  "vue",
   "vue3",
-  //  "html",
-  //  "preact",
+  "html",
+  "preact",
   //  "sfcVue",
-  //  "svelte",
+  "svelte",
 ];

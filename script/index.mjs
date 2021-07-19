@@ -1,27 +1,62 @@
 import { $ } from "zx";
 import { templates } from "./templates.mjs";
-import { commitEverythingInDirectory } from "./git-helper.mjs";
-import { pwd } from "./fs-helper.mjs";
+import { commitEverythingInDirectory, initRepo } from "./git-helper.mjs";
+import { copyAll, createTmpDir, pwd } from "./fs-helper.mjs";
 
-const reproRootFolder = "storybook-repro";
+const logger = console;
+const tmpFolder = await createTmpDir();
+const scriptPath = await pwd();
+const templatesFolderPath = `${scriptPath}/templates`;
 
-const currentPath = await pwd();
+const useNextVersion = argv.next;
+const remote = argv.remote;
+const push = argv.push;
+const forcePush = argv["force-push"];
+const gitBranch = useNextVersion ? "next" : "main";
+const sbCliVersion = useNextVersion ? "next" : "latest";
 
-cd("/tmp");
-await $`rm -rf ${reproRootFolder}`;
-await $`mkdir ${reproRootFolder}`;
+cd(tmpFolder);
+
+await initRepo(gitBranch);
 
 for (const template of templates) {
-  cd(`/tmp/${reproRootFolder}`);
   const framework = template;
-  await $`npx sb@next repro --template ${framework} ${framework}`;
+  await $`npx sb@${sbCliVersion} repro --template ${framework} ${framework}`;
   await $`rm -rf ${framework}/.git`;
-  await $`rm -rf ${currentPath}/${framework}`;
-  await $`mv ${framework} ${currentPath}/${framework}`;
-  cd(currentPath);
+}
 
-  await commitEverythingInDirectory(
-    framework,
-    `feat: update ${framework} example`
-  );
+await copyAll(templatesFolderPath, tmpFolder);
+
+let commitMessage = `Storybook Examples - ${new Date().toDateString()}`;
+await commitEverythingInDirectory(commitMessage, false);
+
+logger.info(`
+ All the examples were bootstrapped:
+    - in ${tmpFolder}
+    - using the '${sbCliVersion}' version of Storybook CLI
+    - and committed on the '${gitBranch}' branch of a local Git repository 
+ 
+ Also all the files in the 'templates' folder were copied at the root of the Git repository.
+`);
+
+if (remote) {
+  $`git remote add origin ${remote}`;
+
+  if (push) {
+    $`git push --set-upstream origin ${gitBranch} ${
+      forcePush ? "--force" : ""
+    }`;
+    const remoteRepoUrl = `${remote.replace(".git", "")}/tree/${gitBranch}`;
+    logger.info(`🚀 Everything was pushed on ${remoteRepoUrl}`);
+  }
+  logger.info(`
+ To publish these examples you just need to:
+    - push the branch: 'git push --set-upstream origin ${gitBranch}' (you might need '--force' option ;))
+`);
+} else {
+  logger.info(`
+ To publish these examples you just need to:
+    - add a remote Git repository: 'git remote add origin XXXXXXX'
+    - push the branch: 'git push --set-upstream origin ${gitBranch}' (you might need '--force' option ;))
+`);
 }

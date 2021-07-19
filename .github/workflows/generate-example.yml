@@ -15,8 +15,8 @@ jobs:
           git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
           git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
       - name: Install dependencies
-        run: yarn install
-      - name: Generate examples
-        run: yarn start
-      - name: Push examples
-        run: git push
+        run: npm install
+      - name: Generate examples with Latest Storybook CLI
+        run: npm start -- --remote=https://github.com/gaetanmaisse/storybook-examples.git --push --force-push
+      - name: Generate examples with Next Storybook CLI
+        run: npm start -- --next --remote=https://github.com/gaetanmaisse/storybook-examples.git --push --force-push

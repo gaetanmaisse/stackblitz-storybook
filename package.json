@@ -4,7 +4,7 @@
   "description": "⚡️",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node script/index.mjs"
+    "start": "YARN_ENABLE_IMMUTABLE_INSTALLS=false node script/index.mjs"
   },
   "repository": {
     "type": "git",
