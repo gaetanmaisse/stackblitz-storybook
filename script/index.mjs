@@ -1,7 +1,7 @@
 import { $ } from "zx";
 import { templates } from "./templates.mjs";
 import { commitEverythingInDirectory, initRepo } from "./git-helper.mjs";
-import { copyAll, createTmpDir, pwd } from "./fs-helper.mjs";
+import { copy, createTmpDir, pwd } from "./fs-helper.mjs";
 
 const logger = console;
 const tmpFolder = await createTmpDir();
@@ -18,14 +18,17 @@ const sbCliVersion = useNextVersion ? "next" : "latest";
 cd(tmpFolder);
 
 await initRepo(gitBranch);
+await copy(`${templatesFolderPath}/README.md`, tmpFolder);
 
 for (const template of templates) {
   const framework = template;
   await $`npx sb@${sbCliVersion} repro --template ${framework} ${framework}`;
   await $`rm -rf ${framework}/.git`;
+  await copy(
+    `${templatesFolderPath}/.stackblitzrc`,
+    `${tmpFolder}/${framework}`
+  );
 }
-
-await copyAll(templatesFolderPath, tmpFolder);
 
 let commitMessage = `Storybook Examples - ${new Date().toDateString()}`;
 await commitEverythingInDirectory(commitMessage, false);
@@ -39,24 +42,29 @@ logger.info(`
  Also all the files in the 'templates' folder were copied at the root of the Git repository.
 `);
 
-if (remote) {
-  $`git remote add origin ${remote}`;
+try {
+  if (remote) {
+    await $`git remote add origin ${remote}`;
 
-  if (push) {
-    $`git push --set-upstream origin ${gitBranch} ${
-      forcePush ? "--force" : ""
-    }`;
-    const remoteRepoUrl = `${remote.replace(".git", "")}/tree/${gitBranch}`;
-    logger.info(`🚀 Everything was pushed on ${remoteRepoUrl}`);
+    if (push) {
+      await $`git push --set-upstream origin ${gitBranch} ${
+        forcePush ? "--force" : ""
+      }`;
+      const remoteRepoUrl = `${remote.replace(".git", "")}/tree/${gitBranch}`;
+      logger.info(`🚀 Everything was pushed on ${remoteRepoUrl}`);
+    } else {
+      logger.info(`
+   To publish these examples you just need to:
+      - push the branch: 'git push --set-upstream origin ${gitBranch}' (you might need '--force' option ;))
+  `);
+    }
+  } else {
+    logger.info(`
+   To publish these examples you just need to:
+      - add a remote Git repository: 'git remote add origin XXXXXXX'
+      - push the branch: 'git push --set-upstream origin ${gitBranch}' (you might need '--force' option ;))
+  `);
   }
-  logger.info(`
- To publish these examples you just need to:
-    - push the branch: 'git push --set-upstream origin ${gitBranch}' (you might need '--force' option ;))
-`);
-} else {
-  logger.info(`
- To publish these examples you just need to:
-    - add a remote Git repository: 'git remote add origin XXXXXXX'
-    - push the branch: 'git push --set-upstream origin ${gitBranch}' (you might need '--force' option ;))
-`);
+} catch (e) {
+  logger.error(e);
 }

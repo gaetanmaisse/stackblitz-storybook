@@ -23,6 +23,6 @@ export async function createTmpDir() {
  *
  * @return {Promise<string>}
  */
-export async function copyAll(source, target) {
-  return await $`cp -a /${source}/. /${target}/`;
+export async function copy(sourceFile, targetDirectory) {
+  return await $`cp ${sourceFile} ${targetDirectory}`;
 }

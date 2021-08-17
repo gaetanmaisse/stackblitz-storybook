@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '7 */12 * * *'
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   update:
@@ -17,6 +19,6 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Generate examples with Latest Storybook CLI
-        run: npm start -- --remote=https://github.com/gaetanmaisse/storybook-examples.git --push --force-push
+        run: npm start -- --remote=https://gaetanmaisse:${{ secrets.PAT_GITHUB}}@github.com/gaetanmaisse/storybook-examples.git --push --force-push
       - name: Generate examples with Next Storybook CLI
-        run: npm start -- --next --remote=https://github.com/gaetanmaisse/storybook-examples.git --push --force-push
+        run: npm start -- --next --remote=https://gaetanmaisse:${{ secrets.PAT_GITHUB}}@github.com/gaetanmaisse/storybook-examples.git --push --force-push
