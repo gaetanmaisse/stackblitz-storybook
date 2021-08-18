@@ -1,7 +1,7 @@
 export const templates = [
   "cra",
   "cra_typescript",
-  // "react",
+  "react",
   // "react_typescript",
   // "webpack_react",
   // "react_in_yarn_workspace",
@@ -11,7 +11,7 @@ export const templates = [
   // "web_components",
   "web_components_typescript",
   "web_components_lit2",
-  // "vue",
+  "vue",
   "vue3",
   "html",
   "preact",

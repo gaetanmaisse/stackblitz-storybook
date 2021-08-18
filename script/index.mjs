@@ -18,14 +18,14 @@ const sbCliVersion = useNextVersion ? "next" : "latest";
 cd(tmpFolder);
 
 await initRepo(gitBranch);
-await copy(`${templatesFolderPath}/README.md`, tmpFolder);
+await copy(`${templatesFolderPath}/${gitBranch}/README.md`, tmpFolder);
 
 for (const template of templates) {
   const framework = template;
   await $`npx sb@${sbCliVersion} repro --template ${framework} ${framework}`;
   await $`rm -rf ${framework}/.git`;
   await copy(
-    `${templatesFolderPath}/.stackblitzrc`,
+    `${templatesFolderPath}/${gitBranch}/.stackblitzrc`,
     `${tmpFolder}/${framework}`
   );
 }
